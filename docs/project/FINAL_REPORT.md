@@ -87,28 +87,26 @@ são claramente piores que o Focus em todos os horizontes com p-valores
    ordem.
 4. **~~Preenchimento do LinkedIn~~**: ✅ ajustado para
    `linkedin.com/in/murilozgodoy` em `/sobre` e no post rascunho.
-5. **Screenshots do dashboard** no README: ainda não gerados; `pnpm dev`
-   + Playwright é o caminho previsto.
+5. **~~Screenshots do dashboard~~**: ✅ 7 capturas full-page (uma por
+   rota) em `ipca-nowcast-web/docs/images/`, geradas automaticamente por
+   `tests/e2e/screenshots.spec.ts` com Playwright + MSW; linkadas no
+   README do frontend.
+6. **~~CI em ambos os repos~~**: ✅ verde (dois bugs corrigidos nesta
+   fase: `pnpm/action-setup` reclamava de `version` duplicado com
+   `packageManager`, e o prettier reclamava das fixtures JSON geradas).
 
 ## 4. O que você precisa fazer manualmente
 
-1. **Verificar o CI dos dois repos no GitHub (aba Actions)** — se algum
-   step cair, me avise que ajusto. Localmente ruff + mypy + 62 testes
-   + Vitest + Playwright build estão verdes.
-2. **Gerar screenshots do dashboard** para o README. Sugestão:
-   ```bash
-   cd ipca-nowcast-web
-   pnpm dev   # VITE_USE_MOCKS=false (API local já populada)
-   # abra /, /inflacao, /modelos, /acompanhamento, /series e salve
-   # os prints em ipca-nowcast-web/docs/images/
-   ```
-3. **(Opcional) Deploy** seguindo `docs/deploy.md` — Neon + Fly + Vercel
+Nada bloqueador — tudo que seguia pendente foi fechado nesta sessão. As
+duas pontas abertas são opcionais e dependem só da sua decisão:
+
+1. **(Opcional) Deploy** seguindo `docs/deploy.md` — Neon + Fly + Vercel
    atendem no plano gratuito; ~1h de setup total.
-4. **(Opcional) Agendar `macro update` diário** no provedor escolhido
+2. **(Opcional) Agendar `macro update` diário** no provedor escolhido
    (ex.: Fly machine schedule às 11:30 UTC, após a divulgação do IPCA).
-5. **Postar no LinkedIn** com o rascunho em
-   `docs/project/LINKEDIN_POST.md` — já traz os números do backtest com
-   dados reais.
+3. **(Opcional) Postar no LinkedIn** quando quiser, usando o rascunho
+   em `docs/project/LINKEDIN_POST.md` (já com os números reais do
+   backtest 2015-2026).
 
 ## 5. Como rodar tudo localmente
 
