@@ -25,6 +25,11 @@ app = typer.Typer(
 db_app = typer.Typer(help="Database management.", no_args_is_help=True)
 app.add_typer(db_app, name="db")
 
+# Wire pipeline subcommands (nowcast, backtest).
+from ipca_nowcast.cli import pipeline as _pipeline  # noqa: E402
+
+_pipeline.register(app)
+
 
 @app.command()
 def version() -> None:

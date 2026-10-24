@@ -60,9 +60,11 @@ select = ["E", "F", "I", "N", "UP", "B", "SIM", "C4", "PT", "RET", "RUF"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["N802", "N803"]
+"tests/**" = ["N802", "N803", "N806"]
 # typer requires `typer.Option(...)` in function defaults
 "src/ipca_nowcast/cli/*.py" = ["B008"]
+# scikit-learn convention uses capital X for the feature matrix
+"src/ipca_nowcast/models/*.py" = ["N806"]
 
 [tool.ruff.format]
 quote-style = "double"
