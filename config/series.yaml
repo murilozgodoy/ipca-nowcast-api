@@ -1,0 +1,61 @@
+# Macro series registry.
+# publication_lag_days: approximate number of days between the reference date
+# of an observation and the moment it becomes public. Used to prevent
+# look-ahead bias when building the real-time dataset (F2).
+series:
+  - code: "sgs.433"
+    source: "BCB_SGS"
+    external_id: "433"
+    name: "IPCA — variação mensal"
+    unit: "percent_month"
+    frequency: "monthly"
+    publication_lag_days: 11
+    is_target: true
+
+  - code: "sgs.13522"
+    source: "BCB_SGS"
+    external_id: "13522"
+    name: "IPCA — acumulado em 12 meses"
+    unit: "percent"
+    frequency: "monthly"
+    publication_lag_days: 11
+
+  - code: "sgs.188"
+    source: "BCB_SGS"
+    external_id: "188"
+    name: "INPC — variação mensal"
+    unit: "percent_month"
+    frequency: "monthly"
+    publication_lag_days: 13
+
+  - code: "sgs.189"
+    source: "BCB_SGS"
+    external_id: "189"
+    name: "IGP-M — variação mensal"
+    unit: "percent_month"
+    frequency: "monthly"
+    publication_lag_days: 2
+
+  - code: "sgs.432"
+    source: "BCB_SGS"
+    external_id: "432"
+    name: "Selic — meta anualizada"
+    unit: "percent_year"
+    frequency: "daily"
+    publication_lag_days: 1
+
+  - code: "sgs.1"
+    source: "BCB_SGS"
+    external_id: "1"
+    name: "Dólar — PTAX venda"
+    unit: "BRL_per_USD"
+    frequency: "daily"
+    publication_lag_days: 1
+
+  - code: "sgs.24364"
+    source: "BCB_SGS"
+    external_id: "24364"
+    name: "IBC-Br — índice dessazonalizado"
+    unit: "index"
+    frequency: "monthly"
+    publication_lag_days: 45

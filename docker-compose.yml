@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: ipca_nowcast_postgres
+    environment:
+      POSTGRES_USER: macro
+      POSTGRES_PASSWORD: macro
+      POSTGRES_DB: ipca_nowcast
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U macro -d ipca_nowcast"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ipca_nowcast_api
+    environment:
+      DATABASE_URL: postgresql+psycopg://macro:macro@postgres:5432/ipca_nowcast
+      API_CORS_ORIGINS: http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    profiles:
+      - api
+
+volumes:
+  postgres_data:

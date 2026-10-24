@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv (we keep .python-version intentionally; uv uses it to pin the interpreter)
+uv.cache/
+
+# Data (raw downloads and local DBs)
+data/raw/
+data/dev.db
+data/*.sqlite*
+*.parquet
+
+# Alembic local override
+alembic.ini.local
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/scratch/
