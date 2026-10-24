@@ -40,5 +40,6 @@ são verificáveis.
 
 Código: https://github.com/murilozgodoy/ipca-nowcast-api
 Dashboard: https://github.com/murilozgodoy/ipca-nowcast-web
+LinkedIn: https://www.linkedin.com/in/murilozgodoy
 
 #DataScience #Economia #Python #React #BancoCentral #IPCA #Brasil
