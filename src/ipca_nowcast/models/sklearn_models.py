@@ -1,4 +1,12 @@
-"""ElasticNet and GradientBoosting wrappers on top of the real-time dataset."""
+"""ElasticNet and GradientBoosting wrappers on top of the real-time dataset.
+
+Both forecasters produce an 80% prediction interval using the empirical
+distribution of **in-sample residuals** — i.e., ``PI = pred ± q_90(|e|)``
+where ``e_i = y_i - ŷ_i`` on the training set. This is the standard
+"residual bootstrap" shortcut: no bootstrap resampling, just the empirical
+quantile of the residuals shifted around the point forecast. SARIMA
+already provides analytical PIs; combos just carry theirs through.
+"""
 
 from __future__ import annotations
 
@@ -34,6 +42,15 @@ def _latest_feature_row(bundle: DatasetBundle) -> pd.DataFrame | None:
     return row.fillna(bundle.features.median(numeric_only=True)).fillna(0.0)
 
 
+def _residual_pi(pred: float, residuals: np.ndarray, alpha: float = 0.1) -> tuple[float, float]:
+    """80% PI = (pred + q_alpha(e), pred + q_{1-alpha}(e)) using empirical quantiles."""
+    if residuals.size < 8:
+        return (pred, pred)
+    low = float(np.quantile(residuals, alpha))
+    high = float(np.quantile(residuals, 1 - alpha))
+    return (pred + low, pred + high)
+
+
 @dataclass
 class ElasticNetForecaster:
     name: str = "elasticnet"
@@ -57,7 +74,9 @@ class ElasticNetForecaster:
             fallback = float(y.iloc[-1])
             return Prediction(self.name, value=fallback)
         pred = float(model.predict(latest.values)[0])
-        return Prediction(self.name, value=pred)
+        residuals = y.values - model.predict(X.values)
+        lower, upper = _residual_pi(pred, residuals)
+        return Prediction(self.name, value=pred, pi_lower=lower, pi_upper=upper)
 
 
 @dataclass
@@ -82,4 +101,6 @@ class GradientBoostingForecaster:
             fallback = float(y.iloc[-1])
             return Prediction(self.name, value=fallback)
         pred = float(model.predict(latest.values)[0])
-        return Prediction(self.name, value=pred)
+        residuals = y.values - model.predict(X.values)
+        lower, upper = _residual_pi(pred, residuals)
+        return Prediction(self.name, value=pred, pi_lower=lower, pi_upper=upper)

@@ -15,6 +15,7 @@ from ipca_nowcast.api.schemas import (
     FocusLatestPoint,
     ForecastPoint,
     Health,
+    IpcaGroupPoint,
     NowcastLatest,
     NowcastRow,
     Observation,
@@ -31,6 +32,7 @@ from ipca_nowcast.db.models import (
     Observation as DbObservation,
 )
 from ipca_nowcast.features.dataset import build_dataset
+from ipca_nowcast.ingestion.sidra import SidraClient
 from ipca_nowcast.models.baselines import FocusBaseline, HistoricalMean, RandomWalk, SeasonalNaive
 from ipca_nowcast.models.combo import MeanCombination
 from ipca_nowcast.models.sarima import SarimaForecaster
@@ -191,6 +193,38 @@ def backtest_forecasts(
         )
         for r in rows
     ]
+
+
+@router.get("/ipca/groups", response_model=list[IpcaGroupPoint], tags=["ipca"])
+def ipca_groups(
+    start: dt.date | None = Query(default=None),
+    end: dt.date | None = Query(default=None),
+) -> list[IpcaGroupPoint]:
+    """Monthly IPCA variation by top-level group (table 7060 at IBGE SIDRA).
+
+    Fetched live from ``apisidra.ibge.gov.br`` with on-disk caching through
+    ``HttpClient``. Returns an empty list if the upstream service fails.
+    """
+    try:
+        client = SidraClient()
+        points = client.fetch_ipca_groups(start=start, end=end, use_cache=True)
+    except Exception:
+        return []
+    out: list[IpcaGroupPoint] = []
+    for p in points:
+        out.append(
+            IpcaGroupPoint(
+                reference_date=p.reference_date,
+                group_code=p.group_code,
+                group_name=p.group_name,
+                monthly_pct=float(p.monthly_pct) if p.monthly_pct is not None else None,
+            )
+        )
+    if start:
+        out = [p for p in out if p.reference_date >= start]
+    if end:
+        out = [p for p in out if p.reference_date <= end]
+    return out
 
 
 @router.get("/focus/latest", response_model=list[FocusLatestPoint], tags=["focus"])

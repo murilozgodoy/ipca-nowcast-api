@@ -59,3 +59,11 @@ series:
     unit: "index"
     frequency: "monthly"
     publication_lag_days: 45
+
+  - code: "anp.gasolina"
+    source: "ANP"
+    external_id: "GASOLINA COMUM"
+    name: "ANP — preço médio da gasolina (R$/litro)"
+    unit: "BRL_per_litre"
+    frequency: "monthly"
+    publication_lag_days: 10

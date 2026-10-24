@@ -85,6 +85,13 @@ class FocusLatestPoint(BaseModel):
     n_respondents: int | None
 
 
+class IpcaGroupPoint(BaseModel):
+    reference_date: dt.date
+    group_code: str
+    group_name: str
+    monthly_pct: float | None
+
+
 class Paginated(BaseModel):
     """Minimal pagination envelope."""
 

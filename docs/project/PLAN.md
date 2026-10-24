@@ -93,7 +93,7 @@ da fase estiver atendido.
 - [x] `docs/project/FINAL_REPORT.md`
 
 ## F11 — Bônus
-- [ ] Combustíveis ANP
-- [ ] Previsão por grupos do IPCA
-- [ ] Intervalos de previsão (fan chart)
-- [ ] Página "acompanhamento ao vivo"
+- [x] Combustíveis ANP (`AnpClient`, série `anp.gasolina` em `series.yaml`, fixture CSV, 4 testes offline)
+- [x] IPCA por grupos via SIDRA (`SidraClient.fetch_ipca_groups`, endpoint `/ipca/groups`, card no `/inflacao`)
+- [x] Intervalos de previsão: SARIMA analítico + ElasticNet/GBM via quantis empíricos dos resíduos; coluna `pi_lower/pi_upper` persistida; fan chart Area no `/inflacao`
+- [x] Página `/acompanhamento` com KPIs (RMSE, MAE, taxa de direção correta) e gráficos previsão × realizado × erro por mês

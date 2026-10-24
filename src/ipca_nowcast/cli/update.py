@@ -98,8 +98,9 @@ def register(app_cli: typer.Typer) -> None:
             "nowcast_latest_h0": "/nowcast/latest?horizon=0",
             "nowcast_latest_h1": "/nowcast/latest?horizon=1",
             "backtest_metrics": "/backtest/metrics",
-            "backtest_forecasts": "/backtest/forecasts?limit=200",
+            "backtest_forecasts": "/backtest/forecasts?limit=500",
             "focus_latest": "/focus/latest?limit=12",
+            "ipca_groups": "/ipca/groups",
         }
         for name, path in endpoints.items():
             r = client.get(path)

@@ -37,6 +37,8 @@ class ForecastRow:
     horizon: int
     prediction: float
     actual: float | None
+    pi_lower: float | None = None
+    pi_upper: float | None = None
 
 
 @dataclass
@@ -113,6 +115,8 @@ def run_backtest(
                         horizon=horizon,
                         prediction=float(pred.value),
                         actual=actuals.get(ref_month),
+                        pi_lower=pred.pi_lower,
+                        pi_upper=pred.pi_upper,
                     )
                 )
 
@@ -201,6 +205,8 @@ def persist_backtest(session: Session, output: BacktestOutput) -> dict[str, int]
             "reference_date": f.reference_date,
             "horizon": int(f.horizon),
             "prediction": Decimal(str(f.prediction)),
+            "pi_lower": Decimal(str(f.pi_lower)) if f.pi_lower is not None else None,
+            "pi_upper": Decimal(str(f.pi_upper)) if f.pi_upper is not None else None,
         }
         for f in output.forecasts
     ]

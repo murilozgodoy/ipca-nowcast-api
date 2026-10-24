@@ -1,4 +1,4 @@
-PRÓXIMO PASSO: F5 — `macro update` (ingest → nowcast → log em `ingestion_runs`), script para exportar respostas da API como fixtures do MSW no frontend.
+PRÓXIMO PASSO: PROJETO COMPLETO (F0–F11 inclusive). Pendências opcionais em `docs/project/FINAL_REPORT.md` (rodar backtest contra dados reais via `macro ingest --all --focus` e deploy).
 
 # PROGRESS
 

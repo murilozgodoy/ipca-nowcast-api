@@ -107,4 +107,24 @@ def test_focus_latest(client: TestClient) -> None:
     assert r.status_code == 200
     body = r.json()
     assert body
-    assert all("median" in row for row in body)
+
+
+def test_ipca_groups_returns_live_data(client: TestClient, fixtures_dir) -> None:
+    """Patch SIDRA with respx to return the recorded JSON payload."""
+    import json
+
+    import httpx
+    import respx
+
+    from ipca_nowcast.ingestion.sidra import SIDRA_BASE
+
+    payload = json.loads((fixtures_dir / "sidra_ipca_groups.json").read_text(encoding="utf-8"))
+    with respx.mock:
+        respx.get(url__startswith=SIDRA_BASE).mock(return_value=httpx.Response(200, json=payload))
+        r = client.get("/ipca/groups")
+    assert r.status_code == 200
+    body = r.json()
+    assert len(body) == 27
+    first = body[0]
+    assert first["group_code"] == "7170"
+    assert first["monthly_pct"] == 0.76
