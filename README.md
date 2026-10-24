@@ -117,6 +117,9 @@ flowchart LR
   API -->|JSON| WEB[ipca-nowcast-web<br/>React · TanStack · Recharts]
 ```
 
+Screenshots do dashboard em
+[`ipca-nowcast-web#screenshots`](https://github.com/murilozgodoy/ipca-nowcast-web#screenshots).
+
 ## Stack
 
 - Python 3.12 gerenciado por [`uv`](https://github.com/astral-sh/uv)
