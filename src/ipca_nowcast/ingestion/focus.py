@@ -6,6 +6,7 @@ import datetime as dt
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from ipca_nowcast.ingestion.base import HttpClient
 from ipca_nowcast.logging import get_logger
@@ -61,23 +62,25 @@ class FocusClient:
         self,
         start_date: dt.date | None = None,
         base_calculo: int = 0,
-        top: int = 10000,
+        top: int = 1000,
         use_cache: bool = False,
     ) -> list[dict[str, Any]]:
+        """Olinda rejects URL-encoded `+` for spaces inside `$filter`; we build
+        the query string ourselves with `%20` encoding and also cap `$top` at
+        1000 (the server returns 400 for larger pages when combined with a
+        filter)."""
         filters = ["Indicador eq 'IPCA'", f"baseCalculo eq {base_calculo}"]
         if start_date is not None:
             filters.append(f"Data ge '{start_date.isoformat()}'")
+        filter_expr = quote(" and ".join(filters), safe="")
         rows: list[dict[str, Any]] = []
         skip = 0
         while True:
-            params = {
-                "$format": "json",
-                "$filter": " and ".join(filters),
-                "$top": top,
-                "$skip": skip,
-                "$orderby": "Data",
-            }
-            payload = self.http.get_json(FOCUS_BASE, params=params, use_cache=use_cache) or {}
+            url = (
+                f"{FOCUS_BASE}?$format=json&$filter={filter_expr}"
+                f"&$top={top}&$skip={skip}&$orderby=Data"
+            )
+            payload = self.http.get_json(url, use_cache=use_cache) or {}
             batch: list[dict[str, Any]] = (
                 payload.get("value", []) if isinstance(payload, dict) else []
             )

@@ -38,28 +38,63 @@ O dashboard em React vive em
   `/focus/latest`.
 - Pipeline `macro update` end-to-end e `macro export-fixtures` que gera
   as fixtures MSW usadas pelo frontend.
-- **52 testes passam offline** (respx + fixtures) em menos de 30 s.
+- **62 testes passam offline** (respx + fixtures) em menos de 25 s.
 
 ## Principais resultados
 
-> Executado em `2026-10-23` sobre fixtures compactas incluídas no repo
-> (não a série histórica completa — para isso rode `macro ingest --all`
-> seguido de `macro backtest`). Os resultados abaixo servem como
-> ilustração do método.
+> Backtest *expanding-window* executado em **2026-10-24** com dados
+> reais: 7 séries do BCB SGS + preços semanais da ANP + **63 345 pontos
+> de Focus** (IPCA, 2015-01-02 → 2026-10-24). Origens mensais do
+> backtest: Jan/2015 → Set/2026 (141 obs em h=0, 140 em h=1).
 
-| Modelo | h | Subperíodo | n | RMSE | MAE | Viés | RMSE / Focus | DM | p-valor |
-|---|---|---|---|---|---|---|---|---|---|
-| `combo_mean`      | 0 | post_2022 | 17 | 0.274 | 0.208 | 0.035 | **0.956** | -0.9 | 0.37 |
-| `elasticnet`      | 0 | post_2022 | 17 | 0.312 | 0.233 | 0.080 | 1.09 | +0.5 | 0.62 |
-| `focus_median`    | 0 | post_2022 | 17 | 0.287 | 0.231 | 0.019 | 1.00 | — | — |
-| `random_walk`     | 0 | post_2022 | 17 | 0.436 | 0.325 | 0.013 | 1.52 | +2.3 | 0.02 |
+### Horizonte 0 (nowcast)
 
-**Como ler:** `RMSE / Focus < 1` significa que o modelo foi mais preciso
-que o consenso. O `combo_mean` ficou ~4% abaixo do Focus **no subperíodo
-pós-2022**, mas o Diebold-Mariano não rejeita a hipótese nula
-(`p = 0.37`) — ou seja, a vantagem não é estatisticamente significativa
-com o tamanho de amostra atual. Esse é exatamente o tipo de resultado
-honesto que o projeto quer entregar.
+| Modelo | n | RMSE | MAE | Viés | RMSE / Focus | DM | p-valor |
+|---|---|---|---|---|---|---|---|
+| **`focus_median`**  | 141 | **0.192** | 0.143 | -0.036 | — | — | — |
+| `sarima`            | 141 | 0.340 | 0.257 |  0.004 | 1.77 | +4.8 | <0.001 |
+| `combo_mean`        | 141 | 0.347 | 0.262 |  0.022 | 1.81 | +4.6 | <0.001 |
+| `elasticnet`        | 141 | 0.357 | 0.268 | -0.019 | 1.86 | +4.8 | <0.001 |
+| `historical_mean`   | 141 | 0.385 | 0.280 |  0.005 | 2.01 | +4.5 | <0.001 |
+| `random_walk`       | 141 | 0.391 | 0.293 |  0.000 | 2.04 | +5.0 | <0.001 |
+| `gradient_boosting` | 141 | 0.404 | 0.301 |  0.081 | 2.11 | +5.2 | <0.001 |
+| `seasonal_naive`    | 141 | 0.500 | 0.382 |  0.012 | 2.61 | +6.2 | <0.001 |
+
+### Horizonte 1 (um mês à frente)
+
+| Modelo | n | RMSE | MAE | Viés | RMSE / Focus | DM | p-valor |
+|---|---|---|---|---|---|---|---|
+| **`focus_median`**  | 140 | **0.333** | 0.244 | -0.061 | — | — | — |
+| `sarima`            | 140 | 0.368 | 0.287 |  0.012 | 1.10 | +2.0 | **0.041** |
+| `combo_mean`        | 140 | 0.381 | 0.298 |  0.031 | 1.14 | +2.5 | 0.011 |
+| `elasticnet`        | 140 | 0.394 | 0.310 | -0.010 | 1.18 | +3.3 | 0.001 |
+| `historical_mean`   | 140 | 0.396 | 0.290 |  0.012 | 1.19 | +1.8 | **0.075** |
+
+**Leitura honesta.** O **Focus bate todos os modelos no horizonte 0**
+com significância estatística forte (p < 0.001 em todos). Faz sentido:
+a mediana de ~100 analistas usa dados de alta frequência (câmbio
+intradiário, julgamento de reunião COPOM) que o modelo aberto não
+acessa.
+
+**No horizonte 1 a história muda**: `historical_mean` fica
+*estatisticamente empatado* com o Focus (`p = 0.075`, acima de 5%) e o
+`SARIMA` reduz a diferença para apenas 10% de RMSE a mais, com
+`p = 0.041` (significativo a 5% mas marginal). Em outras palavras:
+*para prever o próximo mês, um modelo simples abertamente especificado
+chega perto do consenso dos economistas*.
+
+A pipeline passa o teste de sanidade — `random_walk` e `seasonal_naive`
+são claramente piores que o Focus em todos os horizontes com p ≪ 0.001;
+se um deles batesse o Focus seria sinal de bug.
+
+Reproduza com seed fixa:
+
+```bash
+docker compose up -d postgres
+uv run macro db upgrade
+uv run macro ingest --all --focus --focus-start 2015-01-01
+uv run macro backtest --start 2015-01-15
+```
 
 ## Arquitetura
 

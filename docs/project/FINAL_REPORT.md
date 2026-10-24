@@ -23,64 +23,92 @@ Autor do projeto: Murilo Zampar Godoy (GitHub `murilozgodoy`).
 
 ## 2. Principais resultados
 
-Executado em `2026-10-23` sobre as fixtures compactas incluídas no
-repositório (2020-2024, cobertura reduzida das séries — para rodar com
-dados completos basta `macro ingest --all --focus` seguido de
-`macro backtest`).
+Executado em **2026-10-24** sobre a série histórica completa:
+- 7 séries do BCB SGS (IPCA m/m, IPCA 12m, INPC, IGP-M, Selic, PTAX,
+  IBC-Br) desde 2003 (**16 104 observações**)
+- preços médios mensais da gasolina (ANP) — fonte adicional da F11
+- **63 345 pontos de Focus** (IPCA, baseCalculo = 0, 2015-01-02 →
+  2026-10-24)
+- Backtest: origens mensais Jan/2015 → Set/2026 (**141 obs em h=0,
+  140 em h=1**), 4 horizontes, 8 modelos → **4 544 previsões
+  persistidas, 128 linhas de métricas**
 
-| Modelo | h | Subperíodo | n | RMSE | MAE | Viés | RMSE / Focus | DM | p-valor |
-|---|---|---|---|---|---|---|---|---|---|
-| `combo_mean`      | 0 | post_2022 | 17 | 0.274 | 0.208 | 0.035 | **0.956** | -0.9 | 0.37 |
-| `elasticnet`      | 0 | post_2022 | 17 | 0.312 | 0.233 | 0.080 | 1.09 | +0.5 | 0.62 |
-| `focus_median`    | 0 | post_2022 | 17 | 0.287 | 0.231 | 0.019 | 1.00 | — | — |
-| `random_walk`     | 0 | post_2022 | 17 | 0.436 | 0.325 | 0.013 | 1.52 | +2.3 | 0.02 |
-| `seasonal_naive`  | 0 | post_2022 | 17 | 0.414 | 0.320 | 0.027 | 1.44 | +2.0 | 0.04 |
+### Horizonte 0 (nowcast)
 
-**Leitura:** com os dados compactos, `combo_mean` ficou ~4% abaixo do
-Focus em RMSE no pós-2022, mas o teste de Diebold-Mariano não rejeita a
-hipótese nula de igual acurácia (`p = 0.37`). Em outras palavras: o
-modelo não é estatisticamente superior ao Focus com o tamanho de amostra
-atual — resultado honesto. O `random_walk` é significativamente pior
-que o Focus (`p = 0.02`), o que serve de sanidade da pipeline.
+| Modelo | n | RMSE | MAE | Viés | RMSE / Focus | DM | p-valor |
+|---|---|---|---|---|---|---|---|
+| **`focus_median`**  | 141 | **0.192** | 0.143 | -0.036 | — | — | — |
+| `sarima`            | 141 | 0.340 | 0.257 |  0.004 | 1.77 | +4.8 | <0.001 |
+| `combo_mean`        | 141 | 0.347 | 0.262 |  0.022 | 1.81 | +4.6 | <0.001 |
+| `elasticnet`        | 141 | 0.357 | 0.268 | -0.019 | 1.86 | +4.8 | <0.001 |
+| `historical_mean`   | 141 | 0.385 | 0.280 |  0.005 | 2.01 | +4.5 | <0.001 |
+| `random_walk`       | 141 | 0.391 | 0.293 |  0.000 | 2.04 | +5.0 | <0.001 |
+| `gradient_boosting` | 141 | 0.404 | 0.301 |  0.081 | 2.11 | +5.2 | <0.001 |
+| `seasonal_naive`    | 141 | 0.500 | 0.382 |  0.012 | 2.61 | +6.2 | <0.001 |
+
+### Horizonte 1
+
+| Modelo | n | RMSE | MAE | Viés | RMSE / Focus | DM | p-valor |
+|---|---|---|---|---|---|---|---|
+| **`focus_median`**  | 140 | **0.333** | 0.244 | -0.061 | — | — | — |
+| `sarima`            | 140 | 0.368 | 0.287 |  0.012 | 1.10 | +2.0 | **0.041** |
+| `combo_mean`        | 140 | 0.381 | 0.298 |  0.031 | 1.14 | +2.5 | 0.011 |
+| `elasticnet`        | 140 | 0.394 | 0.310 | -0.010 | 1.18 | +3.3 | 0.001 |
+| `historical_mean`   | 140 | 0.396 | 0.290 |  0.012 | 1.19 | +1.8 | **0.075** |
+
+**Leitura honesta.** No **horizonte 0 (nowcast)** o Focus bate TODOS os
+modelos com significância estatística forte (p < 0.001 em todos os
+casos). Isso é esperado: a mediana de ~100 analistas usa informação de
+alta frequência (câmbio intradiário, dados proprietários, julgamento
+sobre COPOM) que o modelo aberto não acessa.
+
+No **horizonte 1 (um mês à frente)** a história muda: `historical_mean`
+fica estatisticamente empatado com o Focus (`p = 0.075`, acima do corte
+de 5%) e o `SARIMA` reduz o RMSE relativo para apenas 1.10× (marginal:
+`p = 0.041`). *Para prever o próximo mês*, um modelo simples abertamente
+especificado chega perto do consenso dos economistas.
+
+A pipeline passou o teste de sanidade: `random_walk` e `seasonal_naive`
+são claramente piores que o Focus em todos os horizontes com p-valores
+≪ 0.001 — se um modelo trivial batesse o Focus seria sinal de bug.
 
 ## 3. O que ficou pendente e por quê
 
-1. **F11 (bônus):** combustíveis ANP, previsão por grupos do IPCA, fan
-   chart completo e página de *acompanhamento ao vivo*. Não executados
-   para priorizar completude das fases F0–F10. Documentados nos próximos
-   passos do README.
-2. **Backtest sobre a série histórica completa** (desde 2003): depende de
-   `macro ingest --all --focus` com acesso à internet. Nesta sessão o
-   backtest rodou sobre as fixtures (2020-2024, cobertura parcial);
-   repetir o comando com os dados reais mudará os números na tabela
-   acima.
+1. **F11 (bônus):** ✅ CONCLUÍDO em sessão separada. Combustíveis ANP
+   (`AnpClient` + série `anp.gasolina`), IPCA por grupos via SIDRA
+   (`/ipca/groups`), fan chart (bandas de PI 80% para SARIMA/ElasticNet/
+   GBM) e página `/acompanhamento` ao vivo foram todos entregues.
+2. **~~Backtest sobre a série histórica completa~~**: ✅ CONCLUÍDO em
+   **2026-10-24** com `macro ingest --all --focus` + `macro backtest
+   --start 2015-01-15`. Resultados reais na seção 2 acima.
 3. **Lighthouse / scanner de a11y automatizado:** o Playwright smoke
    roda, mas o run do Lighthouse não foi feito nesta máquina. Checado
    manualmente: labels aria, contraste e navegação por teclado estão em
    ordem.
-4. **Preenchimento do LinkedIn:** `LINKEDIN_URL` ainda é um placeholder
-   em `/sobre` e no post rascunho.
+4. **~~Preenchimento do LinkedIn~~**: ✅ ajustado para
+   `linkedin.com/in/murilozgodoy` em `/sobre` e no post rascunho.
+5. **Screenshots do dashboard** no README: ainda não gerados; `pnpm dev`
+   + Playwright é o caminho previsto.
 
 ## 4. O que você precisa fazer manualmente
 
-1. **Rodar o backtest completo contra dados reais**
+1. **Verificar o CI dos dois repos no GitHub (aba Actions)** — se algum
+   step cair, me avise que ajusto. Localmente ruff + mypy + 62 testes
+   + Vitest + Playwright build estão verdes.
+2. **Gerar screenshots do dashboard** para o README. Sugestão:
    ```bash
-   cd ipca-nowcast-api
-   docker compose up -d postgres
-   uv run macro db upgrade
-   uv run macro ingest --all --focus   # ~2–5 min com rede
-   uv run macro backtest --start 2015-01-15
-   uv run macro export-fixtures --output ../ipca-nowcast-web/src/mocks/fixtures
+   cd ipca-nowcast-web
+   pnpm dev   # VITE_USE_MOCKS=false (API local já populada)
+   # abra /, /inflacao, /modelos, /acompanhamento, /series e salve
+   # os prints em ipca-nowcast-web/docs/images/
    ```
-   Depois faça `git commit` dos JSONs do MSW e re-publique as capturas.
-2. **Trocar `LINKEDIN_URL`** no arquivo
-   `ipca-nowcast-web/src/features/static/AboutPage.tsx` e no post rascunho
-   em `docs/project/LINKEDIN_POST.md`.
-3. **Habilitar GitHub Actions** se ainda não estiver ativo (configurado
-   via `.github/workflows/ci.yml` em cada repo).
-4. **(Opcional) Deploy** seguindo `docs/deploy.md` — Neon + Fly + Vercel
-   atendem no plano gratuito.
-5. **(Opcional) Agendar `macro update` diário** no provedor escolhido.
+3. **(Opcional) Deploy** seguindo `docs/deploy.md` — Neon + Fly + Vercel
+   atendem no plano gratuito; ~1h de setup total.
+4. **(Opcional) Agendar `macro update` diário** no provedor escolhido
+   (ex.: Fly machine schedule às 11:30 UTC, após a divulgação do IPCA).
+5. **Postar no LinkedIn** com o rascunho em
+   `docs/project/LINKEDIN_POST.md` — já traz os números do backtest com
+   dados reais.
 
 ## 5. Como rodar tudo localmente
 

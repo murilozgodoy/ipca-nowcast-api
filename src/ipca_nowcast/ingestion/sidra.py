@@ -89,19 +89,38 @@ class SidraClient:
 
 
 def parse_ipca_groups_payload(rows: list[dict[str, Any]]) -> list[GroupPoint]:
-    """Normalise a SIDRA table-7060 payload to typed ``GroupPoint`` rows."""
+    """Normalise a SIDRA table-7060 payload to typed ``GroupPoint`` rows.
+
+    SIDRA numbers its dimension columns (D1, D2, ...) in the order they
+    appear in the URL. We locate the month and group dimensions by the
+    descriptive header row (``D{i}N`` holds the dimension label) instead
+    of hard-coding positions, so a reordering of the URL still works.
+    """
+    if not rows:
+        return []
+
+    header = rows[0]
+    period_col: str | None = None
+    group_col: str | None = None
+    for idx in range(1, 10):
+        label = str(header.get(f"D{idx}N", "")).lower()
+        if "mês" in label or "mes" in label or "período" in label or "periodo" in label:
+            period_col = f"D{idx}C"
+        if "grupo" in label:
+            group_col = f"D{idx}C"
+    period_col = period_col or "D3C"
+    group_col = group_col or "D4C"
+    group_name_col = group_col[:-1] + "N"
+
     out: list[GroupPoint] = []
-    for row in rows:
-        period = row.get("D2C") or row.get("d2c") or ""
-        group_code = row.get("D3C") or row.get("d3c") or ""
-        group_name = row.get("D3N") or row.get("d3n") or IPCA_GROUPS.get(group_code, group_code)
-        raw_value = row.get("V") or row.get("v") or ""
+    for row in rows[1:]:
+        period = row.get(period_col) or ""
+        group_code = row.get(group_col) or ""
+        group_name = row.get(group_name_col) or IPCA_GROUPS.get(group_code, group_code)
+        raw_value = row.get("V") or ""
         if not period or not group_code:
             continue
-        if raw_value == "Valor":
-            # Header row that SIDRA prepends — skip.
-            continue
-        ref = _parse_period(period)
+        ref = _parse_period(str(period))
         if ref is None:
             continue
         out.append(

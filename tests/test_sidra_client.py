@@ -27,8 +27,9 @@ def test_parse_ipca_groups_skips_header_row(fixtures_dir: Path) -> None:
 
 def test_parse_handles_sentinel_values() -> None:
     rows = [
-        {"D2C": "202410", "D3C": "7766", "D3N": "Educação", "V": "..."},
-        {"D2C": "202410", "D3C": "7170", "D3N": "Alimentação", "V": "0,46"},
+        {"D3N": "Mês", "D4N": "Grupo"},
+        {"D3C": "202410", "D4C": "7766", "D4N": "Educação", "V": "..."},
+        {"D3C": "202410", "D4C": "7170", "D4N": "Alimentação", "V": "0,46"},
     ]
     points = parse_ipca_groups_payload(rows)
     assert len(points) == 2

@@ -54,32 +54,56 @@ def ingest(
     series: str | None = typer.Option(None, help="Fetch a single series by external_id."),
     all_series: bool = typer.Option(False, "--all", help="Fetch every series in the registry."),
     focus: bool = typer.Option(False, "--focus", help="Also fetch Focus expectations."),
+    focus_start: str = typer.Option(
+        "2015-01-01", help="Lower bound (YYYY-MM-DD) for the Focus history."
+    ),
     use_cache: bool = typer.Option(True, help="Cache raw downloads under data/raw/."),
 ) -> None:
-    """Fetch series from the public APIs and upsert them into the database."""
+    """Fetch series from the public APIs and upsert them into the database.
+
+    Each series (and Focus) is committed in its own transaction so a late
+    network blip does not roll back previously ingested data.
+    """
     configure_logging(get_settings().log_level)
     logger = get_logger(__name__)
     if not series and not all_series and not focus:
         raise typer.BadParameter("Pass --all, --series <id>, or --focus.")
-    with session_scope() as session:
-        svc = IngestionService(session)
-        if all_series:
-            outcomes = svc.ingest_all(use_cache=use_cache)
-            logger.info("ingest_all_done", count=len(outcomes))
-            for o in outcomes:
+
+    if all_series:
+        with session_scope() as session:
+            IngestionService(session).sync_registry()
+        from ipca_nowcast.ingestion.registry import load_registry
+
+        for spec in load_registry():
+            try:
+                with session_scope() as session:
+                    outcome = IngestionService(session).ingest_series(spec, use_cache=use_cache)
                 typer.echo(
-                    f"{o.series_code}: upserted={o.rows_upserted} n={o.report.n_points} "
-                    f"gaps={o.report.gaps} dups={o.report.duplicates}"
+                    f"{outcome.series_code}: upserted={outcome.rows_upserted} "
+                    f"n={outcome.report.n_points} gaps={outcome.report.gaps} "
+                    f"dups={outcome.report.duplicates}"
                 )
-        elif series:
-            spec = next((s for s in svc.registry if s.external_id == series), None)
-            if spec is None:
+            except Exception as exc:
+                logger.warning("ingest_series_failed", code=spec.code, error=str(exc))
+                typer.echo(f"{spec.code}: FAILED ({exc})")
+    elif series:
+        with session_scope() as session:
+            svc = IngestionService(session)
+            match = next((s for s in svc.registry if s.external_id == series), None)
+            if match is None:
                 raise typer.BadParameter(f"Series {series} not in registry.")
-            outcome = svc.ingest_series(spec, use_cache=use_cache)
-            typer.echo(f"{outcome.series_code}: upserted={outcome.rows_upserted}")
-        if focus:
-            n = svc.ingest_focus(use_cache=use_cache)
+            outcome = svc.ingest_series(match, use_cache=use_cache)
+        typer.echo(f"{outcome.series_code}: upserted={outcome.rows_upserted}")
+
+    if focus:
+        try:
+            start = dt.date.fromisoformat(focus_start)
+            with session_scope() as session:
+                n = IngestionService(session).ingest_focus(start_date=start, use_cache=use_cache)
             typer.echo(f"focus: upserted={n}")
+        except Exception as exc:
+            logger.warning("ingest_focus_failed", error=str(exc))
+            typer.echo(f"focus: FAILED ({exc})")
 
 
 @app.command()

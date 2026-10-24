@@ -1,4 +1,4 @@
-PRÓXIMO PASSO: PROJETO COMPLETO (F0–F11 inclusive). Pendências opcionais em `docs/project/FINAL_REPORT.md` (rodar backtest contra dados reais via `macro ingest --all --focus` e deploy).
+PRÓXIMO PASSO: PROJETO COMPLETO (F0–F11 + backtest com dados reais 2015→hoje). Pendências opcionais em `docs/project/FINAL_REPORT.md` (screenshots do dashboard, deploy, post no LinkedIn).
 
 # PROGRESS
 

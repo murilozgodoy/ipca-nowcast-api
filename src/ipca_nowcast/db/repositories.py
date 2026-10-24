@@ -24,6 +24,8 @@ from ipca_nowcast.db.models import (
     Series,
 )
 
+_UPSERT_BATCH_SIZE = 1000
+
 
 def _upsert(
     session: Session,
@@ -32,7 +34,8 @@ def _upsert(
     conflict_columns: list[str],
     update_columns: list[str],
 ) -> int:
-    """Portable UPSERT. Returns rowcount (best-effort)."""
+    """Portable UPSERT. Chunks the input to stay under Postgres's 65 535
+    parameter cap per statement. Returns rowcount (best-effort)."""
     if not rows:
         return 0
     dialect = session.get_bind().dialect.name
@@ -40,16 +43,22 @@ def _upsert(
         if dialect == "postgresql":
             from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-            stmt: Any = pg_insert(table).values(rows)
+            dialect_insert: Any = pg_insert
         else:
             from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
-            stmt = sqlite_insert(table).values(rows)
-        set_map = {c: getattr(stmt.excluded, c) for c in update_columns}
-        stmt = stmt.on_conflict_do_update(index_elements=conflict_columns, set_=set_map)
-        result: Any = session.execute(stmt)
-        count = getattr(result, "rowcount", None)
-        return int(count) if count else len(rows)
+            dialect_insert = sqlite_insert
+
+        total = 0
+        for start in range(0, len(rows), _UPSERT_BATCH_SIZE):
+            chunk = rows[start : start + _UPSERT_BATCH_SIZE]
+            stmt: Any = dialect_insert(table).values(chunk)
+            set_map = {c: getattr(stmt.excluded, c) for c in update_columns}
+            stmt = stmt.on_conflict_do_update(index_elements=conflict_columns, set_=set_map)
+            result: Any = session.execute(stmt)
+            count = getattr(result, "rowcount", None)
+            total += int(count) if count and count > 0 else len(chunk)
+        return total
     # Fallback: merge row-by-row.
     affected = 0
     for row in rows:

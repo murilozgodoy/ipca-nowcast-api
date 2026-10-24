@@ -32,11 +32,17 @@ Focus, SARIMA, ElasticNet, Gradient Boosting e uma combinação (média). O
 teste de **Diebold-Mariano** valida se a diferença de acurácia é
 estatisticamente significativa.
 
-🧭 **Resultado honesto:** no horizonte 0 (nowcast), a *combinação* teve
-RMSE levemente menor que o Focus no subperíodo pós-2022, mas sem
-significância estatística com o tamanho de amostra atual. É o tipo de
-resultado que importa para um case: o processo é defensável e os números
-são verificáveis.
+🧭 **Resultado honesto (backtest 2015→hoje, 141 observações mensais):**
+no **horizonte 0 (nowcast)** o Focus bate todos os modelos abertos com
+significância forte (p < 0.001) — mediana de ~100 analistas acessa
+informação de alta frequência (câmbio intradiário, julgamento sobre
+COPOM) que o modelo não usa.
+
+Mas no **horizonte 1 (um mês à frente)** a história muda: a *média
+histórica* fica estatisticamente empatada com o Focus (p = 0.075) e o
+*SARIMA* reduz a diferença para apenas 10% de RMSE a mais (p = 0.041,
+marginal). Em outras palavras: **para prever o próximo mês, um modelo
+simples abertamente especificado chega perto do consenso dos economistas.**
 
 Código: https://github.com/murilozgodoy/ipca-nowcast-api
 Dashboard: https://github.com/murilozgodoy/ipca-nowcast-web
