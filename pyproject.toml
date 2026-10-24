@@ -63,6 +63,8 @@ ignore = ["E501"]
 "tests/**" = ["N802", "N803", "N806"]
 # typer requires `typer.Option(...)` in function defaults
 "src/ipca_nowcast/cli/*.py" = ["B008"]
+# FastAPI's dependency injection uses `Depends(...)` / `Query(...)` in defaults
+"src/ipca_nowcast/api/*.py" = ["B008"]
 # scikit-learn convention uses capital X for the feature matrix
 "src/ipca_nowcast/models/*.py" = ["N806"]
 

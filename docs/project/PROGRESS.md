@@ -1,4 +1,4 @@
-PRÓXIMO PASSO: F3 — benchmarks (RW, média, sazonal, Focus), modelos (SARIMA, ElasticNet, GBM, combinação), backtest expanding-window com Diebold-Mariano, persistência em `forecasts`/`backtest_results`, CLI `macro backtest`/`macro nowcast`.
+PRÓXIMO PASSO: F5 — `macro update` (ingest → nowcast → log em `ingestion_runs`), script para exportar respostas da API como fixtures do MSW no frontend.
 
 # PROGRESS
 

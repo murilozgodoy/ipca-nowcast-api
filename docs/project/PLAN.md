@@ -48,12 +48,12 @@ da fase estiver atendido.
 - [ ] CLI `macro backtest`, `macro nowcast`
 
 ## F4 — API (FastAPI)
-- [ ] `GET /health` (com status do banco)
-- [ ] `GET /series`, `/series/{id}`
-- [ ] `GET /nowcast/latest`
-- [ ] `GET /backtest/metrics`, `/backtest/forecasts`
-- [ ] `GET /focus/latest`
-- [ ] Testes com `TestClient`
+- [x] `GET /health` com status do banco
+- [x] `GET /series`, `GET /series/{code}` com `start`/`end` opcionais
+- [x] `GET /nowcast/latest` executando todos os modelos
+- [x] `GET /backtest/metrics` e `GET /backtest/forecasts` com filtros + paginação
+- [x] `GET /focus/latest` (latest median por mês de referência)
+- [x] 8 testes com `TestClient` passando contra SQLite com fixtures semeadas
 
 ## F5 — Pipeline de atualização
 - [ ] `macro update`: ingest → nowcast → log em `ingestion_runs`

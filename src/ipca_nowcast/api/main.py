@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from ipca_nowcast import __version__
+from ipca_nowcast.api.routes import router as api_router
 from ipca_nowcast.config import get_settings
 from ipca_nowcast.logging import configure_logging
 
@@ -26,11 +27,7 @@ def create_app() -> FastAPI:
         allow_methods=["GET"],
         allow_headers=["*"],
     )
-
-    @app.get("/health", tags=["meta"])
-    def health() -> dict[str, str]:
-        return {"status": "ok", "version": __version__}
-
+    app.include_router(api_router)
     return app
 
 
