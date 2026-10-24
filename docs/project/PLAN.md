@@ -56,8 +56,8 @@ da fase estiver atendido.
 - [x] 8 testes com `TestClient` passando contra SQLite com fixtures semeadas
 
 ## F5 — Pipeline de atualização
-- [ ] `macro update`: ingest → nowcast → log em `ingestion_runs`
-- [ ] Script que exporta respostas da API como fixtures MSW
+- [x] `macro update` com registro em `ingestion_runs` (ingest → nowcast → persist)
+- [x] `macro export-fixtures` dumpa `/health`, `/series`, `/nowcast/latest`, `/backtest/metrics`, `/backtest/forecasts` e `/focus/latest` em JSON na pasta do MSW do frontend
 
 ## F6 — Base do frontend
 - [ ] Layout, roteamento, tema claro/escuro, design system

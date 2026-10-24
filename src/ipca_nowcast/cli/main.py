@@ -27,8 +27,10 @@ app.add_typer(db_app, name="db")
 
 # Wire pipeline subcommands (nowcast, backtest).
 from ipca_nowcast.cli import pipeline as _pipeline  # noqa: E402
+from ipca_nowcast.cli import update as _update  # noqa: E402
 
 _pipeline.register(app)
+_update.register(app)
 
 
 @app.command()
