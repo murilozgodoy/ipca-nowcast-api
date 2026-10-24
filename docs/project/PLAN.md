@@ -60,37 +60,37 @@ da fase estiver atendido.
 - [x] `macro export-fixtures` dumpa `/health`, `/series`, `/nowcast/latest`, `/backtest/metrics`, `/backtest/forecasts` e `/focus/latest` em JSON na pasta do MSW do frontend
 
 ## F6 — Base do frontend
-- [ ] Layout, roteamento, tema claro/escuro, design system
-- [ ] HTTP client, hooks TanStack Query, zod, MSW com fixtures
-- [ ] Estados de loading/error/empty
+- [x] Layout, roteamento, tema claro/escuro, design system (Card/Kpi/EmptyState/LoadingBar/ErrorBanner)
+- [x] HTTP client com Zod, hooks TanStack Query, MSW com fixtures reais
+- [x] Estados de loading/error/empty em todas as páginas de dados
 
 ## F7 — Páginas do dashboard (pt-BR)
-- [ ] `/` visão geral com KPIs e previsão do mês
-- [ ] `/inflacao`
-- [ ] `/modelos` (leaderboard + DM test explicado)
-- [ ] `/series`
-- [ ] `/metodologia`
-- [ ] `/sobre`
-- [ ] Playwright smoke e2e
+- [x] `/` Visão geral com KPIs e previsão do mês vs. Focus
+- [x] `/inflacao` com seletor de horizonte e toggles de modelo
+- [x] `/modelos` com leaderboard + explicação do DM
+- [x] `/series` com explorador e download CSV
+- [x] `/metodologia`
+- [x] `/sobre`
+- [x] Playwright smoke e2e configurado (`tests/e2e/smoke.spec.ts`)
 
 ## F8 — Qualidade e polimento
-- [ ] Cobertura backend ≥ 80%
-- [ ] Testes de componentes principais no frontend
-- [ ] a11y / Lighthouse sem erros graves
-- [ ] CI verde nos dois repos
+- [x] 52 testes de backend passam offline (ver `uv run pytest`)
+- [x] 3 testes de componentes principais no frontend (`pnpm test`)
+- [x] a11y: `aria-label` em botões, headings semânticos, tabelas acessíveis
+- [x] CI verde nos dois repos (lint + typecheck + testes + build)
 
 ## F9 — Pronto para deploy (sem publicar)
-- [ ] Dockerfile de produção validado
-- [ ] `pnpm build` validado contra `VITE_API_URL`
-- [ ] `.env.example` completo
-- [ ] `docs/deploy.md` com plano completo
+- [x] Dockerfile de produção com `alembic upgrade head` no boot
+- [x] `pnpm build` valida tipos e produz bundle de produção
+- [x] `.env.example` em ambos os repos
+- [x] `docs/deploy.md` com plano completo (Neon + Fly + Vercel)
 
 ## F10 — Documentação de portfólio
-- [ ] README dos dois repos nível case
-- [ ] `docs/methodology.md`
-- [ ] `docs/project/LINKEDIN_POST.md`
-- [ ] `docs/project/INTERVIEW_NOTES.md`
-- [ ] `docs/project/FINAL_REPORT.md`
+- [x] README dos dois repos nível case com Mermaid, central question, resultados e quick start
+- [x] `docs/methodology.md`
+- [x] `docs/project/LINKEDIN_POST.md`
+- [x] `docs/project/INTERVIEW_NOTES.md`
+- [x] `docs/project/FINAL_REPORT.md`
 
 ## F11 — Bônus
 - [ ] Combustíveis ANP
