@@ -1,4 +1,4 @@
-PRÓXIMO PASSO: F2 — construir o dataset real-time (`build_dataset(origin_date, horizon)`) com defasagens de publicação, lags explícitos e testes anti-look-ahead.
+PRÓXIMO PASSO: F3 — benchmarks (RW, média, sazonal, Focus), modelos (SARIMA, ElasticNet, GBM, combinação), backtest expanding-window com Diebold-Mariano, persistência em `forecasts`/`backtest_results`, CLI `macro backtest`/`macro nowcast`.
 
 # PROGRESS
 

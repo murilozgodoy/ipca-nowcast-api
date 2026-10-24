@@ -34,9 +34,9 @@ da fase estiver atendido.
 - [x] Fixtures gravadas em `tests/fixtures/` e testes offline (25 passam)
 
 ## F2 — Dataset de modelagem
-- [ ] `build_dataset(origin_date, horizon)` com features defasadas
-- [ ] Teste explícito de anti-look-ahead
-- [ ] Documentação em `docs/methodology.md`
+- [x] `build_dataset(origin_date, horizon)` com features defasadas e defasagem de publicação por frequência
+- [x] Testes explícitos de anti-look-ahead (cutoff por lag, ausência de leaks, imutabilidade histórica)
+- [x] Documentação em `docs/methodology.md`
 
 ## F3 — Modelos e backtest
 - [ ] Benchmarks: RW, média, sazonal ingênuo, Focus
