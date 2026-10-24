@@ -52,3 +52,5 @@ Thumbs.db
 # Jupyter
 .ipynb_checkpoints/
 notebooks/scratch/
+*.scripts/
+.scripts/
