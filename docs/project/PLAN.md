@@ -15,23 +15,23 @@ da fase estiver atendido.
 - [x] GitHub Actions CI backend (ruff, mypy, pytest + postgres service)
 - [x] README backend
 - [x] Arquivos de controle (`PLAN.md`, `PROGRESS.md`, `DECISIONS.md`, `BLOCKERS.md`)
-- [ ] Estrutura do frontend (Vite + React + TS strict, Tailwind, Vitest, Playwright)
-- [ ] GitHub Actions CI frontend
-- [ ] README frontend
-- [ ] CI verde nos dois repos
+- [x] Estrutura do frontend (Vite + React + TS strict, Tailwind, Vitest, Playwright)
+- [x] GitHub Actions CI frontend
+- [x] README frontend
+- [x] Primeiro push em ambos os repos com tag `v0.0.0`
+- [ ] CI verde nos dois repos (aguardando primeira execução nos runners do GitHub)
 
 ## F1 — Banco e ingestão de dados
-- [ ] Modelos SQLAlchemy: `series`, `observations`, `focus_expectations`, `forecasts`, `backtest_results`, `ingestion_runs`
-- [ ] Primeira migração Alembic
-- [ ] Repositórios (padrão repository/UoW)
-- [ ] `SgsClient` (paginação por janelas, retry, cache Parquet)
-- [ ] `FocusClient` (OData, paginação `$top`/`$skip`)
-- [ ] `SidraClient` (opcional, IPCA por grupos)
-- [ ] `config/series.yaml` com defasagem de publicação
-- [ ] Upsert idempotente; validação com pandera
-- [ ] Relatório de qualidade (lacunas, duplicatas, outliers)
-- [ ] CLI: `macro db upgrade`, `macro ingest --all/--series`, `macro seed --fixtures`
-- [ ] Fixtures gravadas em `tests/fixtures/` e testes offline
+- [x] Modelos SQLAlchemy: `series`, `observations`, `focus_expectations`, `forecasts`, `backtest_results`, `ingestion_runs`
+- [x] Primeira migração Alembic (`0001_initial`)
+- [x] Repositórios com upsert portável (PG / SQLite)
+- [x] `SgsClient` (paginação por janelas com relativedelta, retry via tenacity, cache em disco)
+- [x] `FocusClient` (OData, paginação `$top`/`$skip`)
+- [x] `SidraClient` mínimo (fase bônus)
+- [x] `config/series.yaml` com defasagem de publicação
+- [x] Upsert idempotente (ON CONFLICT); relatório de qualidade (lacunas, duplicatas, outliers)
+- [x] CLI: `macro db upgrade`, `macro ingest --all/--series/--focus`, `macro seed --fixtures`, `macro series-list`
+- [x] Fixtures gravadas em `tests/fixtures/` e testes offline (25 passam)
 
 ## F2 — Dataset de modelagem
 - [ ] `build_dataset(origin_date, horizon)` com features defasadas

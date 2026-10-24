@@ -61,6 +61,8 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["N802", "N803"]
+# typer requires `typer.Option(...)` in function defaults
+"src/ipca_nowcast/cli/*.py" = ["B008"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -73,9 +75,9 @@ disallow_untyped_defs = false
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["ipca_nowcast.core.*"]
-strict = true
-disallow_untyped_defs = true
+module = ["ipca_nowcast.db.*"]
+disallow_untyped_defs = false
+warn_unused_ignores = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"

@@ -1,4 +1,4 @@
-PRÓXIMO PASSO: Finalizar F0 do frontend (Vite+React+TS strict, Tailwind, Vitest, CI) e dar o primeiro push nos dois repos.
+PRÓXIMO PASSO: F2 — construir o dataset real-time (`build_dataset(origin_date, horizon)`) com defasagens de publicação, lags explícitos e testes anti-look-ahead.
 
 # PROGRESS
 
@@ -23,3 +23,19 @@ Log cronológico de tarefas concluídas. A linha `PRÓXIMO PASSO:` no topo é a
   FastAPI e o CLI `macro`.
 - Arquivos de controle criados: `PLAN.md`, `PROGRESS.md`, `DECISIONS.md`,
   `BLOCKERS.md`.
+- F0 frontend concluído: Vite + React 18 + TS strict com Tailwind, MSW,
+  TanStack Query, Vitest, Playwright. CI roda lint, format:check,
+  typecheck, vitest, build. Primeiro push nos dois repos com tag `v0.0.0`.
+- F1 backend: modelos SQLAlchemy (series, observations, focus_expectations,
+  forecasts, backtest_results, ingestion_runs) e primeira migração Alembic
+  (`0001_initial`). Repositórios com upsert portável (ON CONFLICT no PG e
+  SQLite, merge no fallback). Clientes `SgsClient` (paginação por janelas
+  com `dateutil.relativedelta`), `FocusClient` (OData `$top`/`$skip`),
+  `SidraClient` mínimo. `IngestionService` orquestra o ciclo
+  fetch→validate→upsert. Fixtures em `tests/fixtures/` para testes
+  offline (24 fixtures + 25 testes passam).
+- CLI `macro`: `db upgrade`, `ingest --all/--series/--focus`, `seed
+  --fixtures`, `series-list`.
+- `macro seed --fixtures` populou Postgres local (porta 5433) com 7 séries,
+  90 observações e 6 pontos de Focus. Alembic rodou contra Postgres sem
+  erro (0001 aplicada).

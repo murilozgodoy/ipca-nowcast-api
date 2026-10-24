@@ -15,8 +15,10 @@ if config.config_file_name is not None:
 
 config.set_main_option("sqlalchemy.url", get_settings().database_url)
 
-# Models are registered in phase F1; for now use None metadata.
-target_metadata = None
+from ipca_nowcast.db.base import Base  # noqa: E402
+from ipca_nowcast.db import models as _models  # noqa: E402,F401
+
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
