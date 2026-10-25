@@ -1,0 +1,49 @@
+# Fly.io configuration for ipca-nowcast-api
+# Build via remote Docker, deploy to São Paulo (closest to Brazilian data sources).
+# Scale: 1 VM shared-cpu-1x@512MB with auto-stop to stay in the free tier.
+# Edit `app = ...` before `fly launch` if the name is already taken.
+
+app = "ipca-nowcast-api"
+primary_region = "gru"
+
+[build]
+
+# Release command runs on a dedicated short-lived VM before the new app
+# version receives traffic — ideal spot for migrations. The HTTP boot
+# then skips the entrypoint migration via RUN_MIGRATIONS=0.
+[deploy]
+  release_command = "alembic upgrade head"
+
+[env]
+  LOG_LEVEL = "INFO"
+  RUN_MIGRATIONS = "0"
+  # API_CORS_ORIGINS is set as a secret so the Vercel URL can be updated
+  # without changing fly.toml.
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 50
+    soft_limit = 30
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[checks]
+  [checks.health]
+    grace_period = "15s"
+    interval = "30s"
+    method = "get"
+    path = "/health"
+    port = 8000
+    timeout = "5s"
+    type = "http"
